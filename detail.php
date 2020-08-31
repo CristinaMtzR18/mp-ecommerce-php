@@ -50,18 +50,23 @@ require __DIR__ .  '/vendor/autoload.php';
 
 // Agrega credenciales
 MercadoPago\SDK::setAccessToken('APP_USR-1159009372558727-072921-8d0b9980c7494985a5abd19fbe921a3d-617633181');
+MercadoPago\SDK::setIntegratorId("dev_24c65fb163bf11ea96500242ac130004");
 
 // Crea un objeto de preferencia
 $preference = new MercadoPago\Preference();
 
 // Crea un ítem en la preferencia
 $item = new MercadoPago\Item();
+$item->id = "1234";
 $item->title = $_POST['title'];
+$item->description = 'Dispositivo móvil de Tienda e-commerce';
+$miSitio = 'https://cristinamtzr-mp-ecommerce-php.herokuapp.com';
+$item->picture_url = $miSitio.str_replace('./','/',$_POST['img']);
 $item->quantity = 1;
 $item->unit_price = $_POST['price'];
-$item->description = 'Teléfono móvil de la tienda en línea';
+//Mi correo
+$preference->external_reference = 'cris.mtz.r18@gmail.com';
 $preference->items = array($item);
-$preference->payer = $payer;
 
 // Crea un pagador de la preferencia 
 $payer = new MercadoPago\Payer();
@@ -78,6 +83,7 @@ $payer->address = array(
     "street_number" => 1602,
     "zip_code" => "03940"
  );
+ $preference->payer = $payer;
 
  // Crea definicion de medios de pago de la preferencia 
 $payment = new MercadoPago\PaymentMethod();
@@ -91,7 +97,16 @@ $preference->payment_methods = array(
                                     "installments" => 6
 );
 
+//Crea URL de retorno
+$preference->back_urls = array(
+    "success" => $miSitio.'/success.php',
+    "failure" => $miSitio.'/failure.php',
+    "pending" => $miSitio.'/pending.php'
+);
+$preference->auto_return = "approved";
 
+//Crea notificaciones
+$preference->notification_url = 'https://mercadopago-checkout.herokuapp.com/webhook';
 $preference->save();
 ?>
 
